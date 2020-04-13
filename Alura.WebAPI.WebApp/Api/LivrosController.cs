@@ -29,5 +29,49 @@ namespace Alura.WebAPI.WebApp.Api
             return Json(model.ToModel());
 
         }
+
+        [HttpPost]
+        public IActionResult Incluir([FromBody]LivroUpload model)
+        {
+            if (ModelState.IsValid)
+            {
+                var livro = model.ToLivro();
+                _repo.Incluir(livro);
+                var url = Url.Action("Recuperar", new { id = livro.Id });
+                return Created(url, livro);
+            }
+            return BadRequest();    // código 201
+        }
+
+        [HttpPost]
+        public IActionResult Alterar([FromBody]LivroUpload model) // [FromBody] Garante a requisição vindo do corpo.
+        {
+            if (ModelState.IsValid)
+            {
+                var livro = model.ToLivro();
+                if (model.Capa == null)
+                {
+                    livro.ImagemCapa = _repo.All
+                        .Where(l => l.Id == livro.Id)
+                        .Select(l => l.ImagemCapa)
+                        .FirstOrDefault();
+                }
+                _repo.Alterar(livro);
+                return Ok();    //código 200
+            }
+            return BadRequest();
+        }
+
+        [HttpPost]
+        public IActionResult Remover(int id)
+        {
+            var model = _repo.Find(id);
+            if (model == null)
+            {
+                return NotFound();
+            }
+            _repo.Excluir(model);
+            return NoContent(); //código 204
+        }
     }
 }
