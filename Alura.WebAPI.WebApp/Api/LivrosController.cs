@@ -6,7 +6,7 @@ using System.Linq;
 namespace Alura.WebAPI.WebApp.Api
 {
     [ApiController]     //todo controlador de uma APi deve ter a anotação ApiController7//
-    [Route("controller")]
+    [Route("[controller]")]
     public class LivrosController : ControllerBase
     {
         private readonly IRepository<Livro> _repo;
@@ -14,6 +14,13 @@ namespace Alura.WebAPI.WebApp.Api
         public LivrosController(IRepository<Livro> repository)
         {
             _repo = repository;
+        }
+
+        [HttpGet]
+        public IActionResult ListaDeLivros()
+        {
+            var lista = _repo.All.Select(l => l.ToModel()).ToList();
+            return Ok(lista);
         }
 
         [HttpGet("{id}")]
@@ -56,7 +63,7 @@ namespace Alura.WebAPI.WebApp.Api
                         .FirstOrDefault();
                 }
                 _repo.Alterar(livro);
-                return Ok();    //código 200
+                return Ok();    
             }
             return BadRequest();
         }
