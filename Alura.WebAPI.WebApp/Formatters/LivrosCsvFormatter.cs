@@ -23,6 +23,7 @@ namespace Alura.WebAPI.WebApp.Formatters
         {
             return type == typeof(LivroApi);
         }
+
         public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context, Encoding selectedEncoding)
         {
             var livroEmCsv = "";
@@ -37,7 +38,7 @@ namespace Alura.WebAPI.WebApp.Formatters
             using (var escritor = context.WriterFactory(context.HttpContext.Response.Body, selectedEncoding))
             {
                 return escritor.WriteAsync(livroEmCsv);
-            }//escritor.Close(); => construção using garante que o close seja chamado.
+            } //escritor.Close()
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Alura.ListaLeitura.Modelos;
 using Alura.ListaLeitura.Persistencia;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
 namespace Alura.WebAPI.WebApp.Api
 {
-    [ApiController]     //todo controlador de uma APi deve ter a anotação ApiController7//
-    [Route("[controller]")]
+    [Authorize]
+    [ApiController]
+    [Route("api/[controller]")]
     public class LivrosController : ControllerBase
     {
         private readonly IRepository<Livro> _repo;
@@ -31,9 +33,7 @@ namespace Alura.WebAPI.WebApp.Api
             {
                 return NotFound();
             }
-
             return Ok(model.ToApi());
-
         }
 
         [HttpGet("{id}/capa")]
@@ -45,26 +45,26 @@ namespace Alura.WebAPI.WebApp.Api
                 .FirstOrDefault();
             if (img != null)
             {
-                return File(img, "imagem/png");
+                return File(img, "image/png");
             }
             return File("~/images/capas/capa-vazia.png", "image/png");
         }
 
         [HttpPost]
-        public IActionResult Incluir([FromBody]LivroUpload model)
+        public IActionResult Incluir([FromBody] LivroUpload model)
         {
             if (ModelState.IsValid)
             {
                 var livro = model.ToLivro();
                 _repo.Incluir(livro);
-                var url = Url.Action("Recuperar", new { id = livro.Id });
-                return Created(url, livro);
+                var uri = Url.Action("Recuperar", new { id = livro.Id });
+                return Created(uri, livro); //201
             }
-            return BadRequest();    // código 201
+            return BadRequest();
         }
 
         [HttpPut]
-        public IActionResult Alterar([FromBody]LivroUpload model) // [FromBody] Garante a requisição vindo do corpo.
+        public IActionResult Alterar([FromBody] LivroUpload model)
         {
             if (ModelState.IsValid)
             {
@@ -77,7 +77,7 @@ namespace Alura.WebAPI.WebApp.Api
                         .FirstOrDefault();
                 }
                 _repo.Alterar(livro);
-                return Ok();    
+                return Ok(); //200
             }
             return BadRequest();
         }
@@ -91,7 +91,7 @@ namespace Alura.WebAPI.WebApp.Api
                 return NotFound();
             }
             _repo.Excluir(model);
-            return NoContent(); //código 204
+            return NoContent(); //203
         }
     }
 }
