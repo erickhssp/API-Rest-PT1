@@ -1,17 +1,13 @@
-﻿using Alura.ListaLeitura.Modelos;
-using Alura.ListaLeitura.Persistencia;
-using Alura.ListaLeitura.Seguranca;
-using Alura.WebAPI.WebApp.Formatters;
+﻿using Alura.ListaLeitura.Seguranca;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System;
 
-namespace Alura.ListaLeitura.WebApp
+
+namespace Alura.WebApi.AuthProvider
 {
     public class Startup
     {
@@ -21,14 +17,12 @@ namespace Alura.ListaLeitura.WebApp
         {
             Configuration = config;
         }
-
+        // This method gets called by the runtime. Use this method to add services to the container.
+        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<LeituraContext>(options => {
-                options.UseSqlServer(Configuration.GetConnectionString("ListaLeitura"));
-            });
-
-            services.AddDbContext<AuthDbContext>(options => {
+            services.AddDbContext<AuthDbContext>(options =>
+            {
                 options.UseSqlServer(Configuration.GetConnectionString("AuthDB"));
             });
 
@@ -40,33 +34,17 @@ namespace Alura.ListaLeitura.WebApp
                 options.Password.RequireLowercase = false;
             }).AddEntityFrameworkStores<AuthDbContext>();
 
-            services.ConfigureApplicationCookie(options => {
-                options.LoginPath = "/Usuario/Login";
-            });
-
-            services.AddTransient<IRepository<Livro>, RepositorioBaseEF<Livro>>();
-
-            services.AddMvc(options => {
-                options.OutputFormatters.Add(new LivrosCsvFormatter());
-            }).AddXmlSerializerFormatters();
+            services.AddMvc();
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            app.UseStaticFiles();
-            app.UseAuthentication();
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
+            app.UseMvc();
         }
     }
 }
